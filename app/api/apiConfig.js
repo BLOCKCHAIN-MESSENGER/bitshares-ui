@@ -15,11 +15,11 @@ export const rudexAPIs = {
     COINS_LIST: "/coins",
     NEW_DEPOSIT_ADDRESS: "/new-deposit-address"
 };
-
+// сдесь гавно кодил Богдан
 export const tdexAPIs = {
-    BASE: "https://gateway.rudex.org/api/v0_1",
-    COINS_LIST: "/coins",
-    NEW_DEPOSIT_ADDRESS: "/new-deposit-address"
+    BASE: "http://localhost:3000",
+    COINS_LIST: "/pay/get_coins",
+    NEW_DEPOSIT_ADDRESS: "/pay/get_user_address_eth"
 };
 
 export const widechainAPIs = {

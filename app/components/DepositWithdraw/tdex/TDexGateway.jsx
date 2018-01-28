@@ -28,7 +28,9 @@ class TDexGateway extends React.Component {
         if (state.action == 'withdraw') {
             firstTimeCoin = 'PPY';
         }
+
         let activeCoin = cachedCoin ? cachedCoin : firstTimeCoin;
+
         return activeCoin;
     }
 
@@ -47,6 +49,7 @@ class TDexGateway extends React.Component {
 
         let setting = {};
         setting[`activeCoin_tdex_${this.state.action}`] = e.target.value;
+        console.log("Bogdan log:",e.target.value);
         SettingsActions.changeViewSetting(setting);
     }
 
@@ -59,6 +62,7 @@ class TDexGateway extends React.Component {
             action: type,
             activeCoin: activeCoin
         });
+
 
         SettingsActions.changeViewSetting({[`tdexAction`]: type});
     }
@@ -91,7 +95,6 @@ class TDexGateway extends React.Component {
         })[0];
 
         if (!coin) coin = filteredCoins[0];
-
         let isDeposit = this.state.action === "deposit";
 
 
@@ -129,6 +132,7 @@ class TDexGateway extends React.Component {
 
 
                         <div style={{marginBottom: 15}}>
+
                             <TDexGatewayDepositRequest
                                 key={`${coin.symbol}`}
                                 gateway={coin.gatewayWallet}
@@ -153,16 +157,8 @@ class TDexGateway extends React.Component {
                         {coin && coin.symbol ?
                             <TransactionWrapper
                                 asset={coin.symbol}
-                                fromAccount={
-                                    isDeposit ? (coin.issuerId) :
-                                        this.props.account.get("id")
-                                }
-                                to={
-                                    isDeposit ? ( this.props.account.get("id") ) :
-                                        (coin.issuerId)
-                                }
-
-                            >
+                                fromAccount={isDeposit ? (coin.issuerId) : this.props.account.get("id")}
+                                to={isDeposit ? ( this.props.account.get("id") ) : (coin.issuerId)}>
                                 { ({asset, to, fromAccount}) => {
                                     return <RecentTransactions
                                         accountsList={Immutable.List([this.props.account.get("id")])}

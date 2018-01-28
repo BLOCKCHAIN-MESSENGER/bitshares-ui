@@ -1,42 +1,51 @@
 import ls from "./localStorage";
 import {tdexAPIs} from "api/apiConfig";
+
 const tdexStorage = new ls("");
 
 export function fetchCoinList(url = (tdexAPIs.BASE + tdexAPIs.COINS_LIST)) {
-    return fetch(url, {method:"post"}).then(reply => reply.json().then(result => {
+    return fetch(url, {method: "post"}).then(reply => reply.json().then(result => {
         return result;
     })).catch(err => {
         console.log("error fetching tdex list of coins", err, url);
     });
 }
 
-export function requestDepositAddress({inputCoinType, outputCoinType, outputAddress, url = tdexAPIs.BASE, stateCallback}) {
+export function requestDepositAddress({inputCoinType, outputCoinType, outputAddress, url = tdexAPIs.BASE, account, user_id,stateCallback}) {
     let body = {
         inputCoinType,
         outputCoinType,
-        outputAddress
+        outputAddress,
+        account,
+        user_id,
     };
 
     let body_string = JSON.stringify(body);
-
-    fetch( url + tdexAPIs.NEW_DEPOSIT_ADDRESS, {
-        method:"post",
-        headers: new Headers( { "Accept": "application/json", "Content-Type":"application/json" } ),
+    return fetch(url + tdexAPIs.NEW_DEPOSIT_ADDRESS, {
+        method: "post",
+        headers: new Headers({"Accept": "application/json", "Content-Type": "application/json"}),
         body: body_string
-    }).then( reply => { reply.json()
-        .then( json => {
-            // console.log( "reply: ", json )
-            let address = {"address": json.inputAddress || "unknown", "memo": json.inputMemo, error: json.error || null};
-            if (stateCallback) stateCallback(address);
-        }, error => {
-            // console.log( "error: ",error  );
-            if (stateCallback) stateCallback({"address": "unknown", "memo": null});
-        });
-    }, error => {
-        // console.log( "error: ",error  );
-        if (stateCallback) stateCallback({"address": "unknown", "memo": null});
+    }).then(reply => {
+        return reply.json()
+            .then(json => {
+                let address = {
+                    "address": json.inputAddress || "unknown",
+                    "memo": json.inputMemo,
+                    error: json.error || null
+                };
+                if (stateCallback) stateCallback(address);
+                return address;
+            })
+            .catch(error => {
+                console.error("error: ", error);
+                if (stateCallback) stateCallback({"address": "unknown", "memo": null});
+                return Promise.reject({"address": "unknown", "memo": null});
+
+            });
     }).catch(err => {
         console.log("fetch error:", err);
+        return Promise.reject({"address": "unknown", "memo": null});
+
     });
 }
 
@@ -48,7 +57,7 @@ export function validateAddress({url = tdexAPIs.BASE, walletType, newAddress}) {
             method: "post",
             headers: new Headers({"Accept": "application/json", "Content-Type": "application/json"}),
             body: JSON.stringify({address: newAddress})
-        }).then(reply => reply.json().then( json => json.isValid))
+        }).then(reply => reply.json().then(json => json.isValid))
         .catch(err => {
             console.log("validate error:", err);
         })
